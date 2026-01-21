@@ -1,0 +1,55 @@
+# nginx proxy address - http://172.17.0.1:8072
+
+x-logging: &default-logging
+  driver: json-file
+  options:
+    max-size: "5m"
+    max-file: "1"
+
+services:
+  snipe-it:
+    image: snipe/snipe-it:latest
+    container_name: snipe-it-app
+    restart: unless-stopped
+    logging: *default-logging
+    networks:
+      - snipe-it
+    ports:
+      - "8072:80"
+    environment:
+      TZ: ${TZ:-America/New_York}
+    volumes:
+      - ./rootfs/data/snipe-it:/data
+      - ./rootfs/config/snipe-it:/config
+    depends_on:
+      - snipe-it-db
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:80"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  snipe-it-db:
+    image: mariadb:11
+    container_name: snipe-it-db
+    restart: unless-stopped
+    logging: *default-logging
+    networks:
+      - snipe-it
+    environment:
+      TZ: ${TZ:-America/New_York}
+      MARIADB_DATABASE: ${DB_CREATE_DATABASE_NAME:-snipe-it}
+      MARIADB_USER: ${DB_USER_NAME:-snipe-it}
+      MARIADB_PASSWORD: ${DB_USER_PASS:-changeme_db_password}
+      MARIADB_ROOT_PASSWORD: ${DB_ADMIN_PASS:-changeme_root_password}
+    volumes:
+      - ./rootfs/db/mariadb/snipe-it:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+networks:
+  snipe-it:
+    external: false
