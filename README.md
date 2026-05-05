@@ -50,9 +50,9 @@ See `docker-compose.yaml` for complete list of configurable options.
 
 ## 📂 Volumes
 
-- `./rootfs/data/snipe-it` - Data storage
-- `./rootfs/config/snipe-it` - Data storage
-- `./rootfs/data/db/mariadb/snipe-it` - Data storage
+- `./volumes/data/snipe-it` - Data storage
+- `./volumes/config/snipe-it` - Data storage
+- `./volumes/data/db/mariadb/snipe-it` - Data storage
 
 ## 🔐 Security
 
